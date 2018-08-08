@@ -11,26 +11,35 @@ knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 library(tidyverse)
 library(ggplot2)
-
+library(jsonlite)
+library(httr)
 library(broom)
+library(ngram)
 ```
 
-## R Markdown
+## Part 1 - Data Curation
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+```{r data_curation}
+top100_1964_2015_df <- read.csv("billboard_lyrics_1964-2015.csv") ##, colClasses=c("numeric", "numeric", "character", "character", "numeric") )
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+top100_1964_2015_df <- top100_1964_2015_df %>%
+  select(Rank, Song, Artist, Year, Lyrics)
 
-```{r cars}
-summary(cars)
+head(top100_1964_2015_df)
 ```
 
-## Including Plots
+## Word Count
 
-You can also embed plots, for example:
+As a naive approach we count the words in each song...
 
+We first convert our factored Lyrics into something we can operate on - characters. We then count the lyrics in each song using library(ngram)'s wordcount function. I will remove the songs with unknown Lyrics and then count unique words in each song.
 ```{r pressure, echo=FALSE}
-plot(pressure)
+top100_1964_2015_df <- top100_1964_2015_df %>%
+  mutate(Lyrics = as.character(Lyrics)) %>%
+  group_by(Song) %>%
+  mutate(wc = wordcount(Lyrics))
+            
+head(top100_1964_2015_df)
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
