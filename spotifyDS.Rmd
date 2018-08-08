@@ -43,9 +43,12 @@ head(top100_1964_2015_df)
 
 ##Seperate each lyric to re-organize each entity as a lyric from a song
 top100_1964_2015_by_word_df <- separate(top100_1964_2015_df, Lyrics, as.character(c(1:1156)), sep=" ")
-top100_1964_2015_by_word_df
+head(top100_1964_2015_by_word_df)
 
-##re-organize dataframe as each entity being a lyric from a song
+##re-organize dataframe as each entity being a lyric from a song, to get unique word count
+top100_1964_2015_by_word_df %>% gather(key = 1:1156, word,-Rank, -Artist, -Year, -Song, -wc, na.rm = TRUE) %>%
+  group_by(Song, Artist, Year) %>%
+  summarize(unique_words = n_distinct(word))
 
 ```
 
