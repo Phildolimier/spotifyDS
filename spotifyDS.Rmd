@@ -2,7 +2,7 @@
 title: "Spotify"
 author: "Philippe Dolimier"
 date: "8/6/2018"
-output: html_document
+output: rmarkdown::github_document
 ---
 
 
@@ -37,6 +37,7 @@ We first convert our factored Lyrics into something we can operate on - characte
 We compare the total word count to the number of unique words using tidyr::gather to turn our Lyric attribute into n attributes each containing a word, we summarize and count unique words.
 
 Our final data frame contains the final proportion of unique words over word count for a naive word repetition metric.
+
 ```{r data curation, echo=FALSE}
 top100_1964_2015_df <- top100_1964_2015_df %>%
   mutate(Lyrics = as.character(Lyrics)) %>%
@@ -82,6 +83,7 @@ Our initial Analysis would beleive us to beleive there is a correlation between 
 
 ```{r unique_proportion_graph}
 
+Correlation Test
 ```
 
 We allow ourselves to see that there is a significant correlation between Year and Proportion of unique words per song. There is a very obvious inverse relationship between Year and Percentage of Unique Words Used. This is to say, as time increases the top 100 Billboard songs of the year tended to use less unique words per song.
