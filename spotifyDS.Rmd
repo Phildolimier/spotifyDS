@@ -28,17 +28,22 @@ top100_1964_2015_df <- top100_1964_2015_df %>%
 head(top100_1964_2015_df)
 ```
 
-## Word Count
+## A Naive Approach - Word Count & Unique Words
 
-As a naive approach we count the words in each song...
+As a naive approach we count the words in each song, unique words per song, and the proportion unique words over word count...
 
 We first convert our factored Lyrics into something we can operate on - characters. We then count the lyrics in each song using library(ngram)'s wordcount function. I will remove the songs with unknown Lyrics and then count unique words in each song.
-```{r pressure, echo=FALSE}
+
+We compare the total word count to the number of unique words using tidyr::gather to turn our Lyric attribute into n attributes each containing a word, we summarize and count unique words.
+
+Our final data frame contains the final proportion of unique words over word count for a naive word repetition metric.
+```{r data curation, echo=FALSE}
 top100_1964_2015_df <- top100_1964_2015_df %>%
   mutate(Lyrics = as.character(Lyrics)) %>%
   group_by_(.dots=c("Song","Artist","Year")) %>% 
   mutate(wc = wordcount(Lyrics)) %>%
   arrange(desc(wc))
+
 head(top100_1964_2015_df)
 
 ##Seperate each lyric to re-organize each entity as a lyric from a song
@@ -46,10 +51,69 @@ top100_1964_2015_by_word_df <- separate(top100_1964_2015_df, Lyrics, as.characte
 head(top100_1964_2015_by_word_df)
 
 ##re-organize dataframe as each entity being a lyric from a song, to get unique word count
-top100_1964_2015_by_word_df %>% gather(key = 1:1156, word,-Rank, -Artist, -Year, -Song, -wc, na.rm = TRUE) %>%
+top100_1964_2015_by_word_df_uniquewords <- top100_1964_2015_by_word_df %>% gather(key = 1:1156, word,-Rank, -Artist, -Year, -Song, -wc, na.rm = TRUE) %>%
   group_by(Song, Artist, Year) %>%
   summarize(unique_words = n_distinct(word))
 
+top100_prop_unique_words <- top100_1964_2015_by_word_df_uniquewords %>%
+  inner_join(top100_1964_2015_by_word_df, by = c("Song" = "Song", "Artist" = "Artist", "Year" = "Year")) %>%
+  mutate(prop = unique_words / wc) %>%
+  arrange(Year, Rank) %>%
+  select(Rank, Song, Artist, Year, unique_words, wc, prop) %>%
+  filter(wc > 4, unique_words > 4)
+
+head(top100_prop_unique_words)
+
 ```
+
+Let us graph the average proportion of unique words per song over Time.
+```{r unique_proportion_graph}
+top100_prop_avgtop100_prop_unique_words <- top100_prop_unique_words %>%
+  group_by(Year) %>%
+  mutate(avg_prop = mean(prop))
+
+ggplot() +
+  geom_line(data=top100_prop_avgtop100_prop_unique_words, aes(x=Year, y=avg_prop), color="Red") +
+  labs(title="Average Percent of Unique Words Per Song Per Year",
+         x = "Year",
+         y = "Percentage of Unique Words Used")
+```
+Our initial Analysis would beleive us to beleive there is a correlation between Year and Percentage of Unique words used per top 100 Billboard Hits. Let us perform a formal test.
+
+```{r unique_proportion_graph}
+
+```
+
+We allow ourselves to see that there is a significant correlation between Year and Proportion of unique words per song. There is a very obvious inverse relationship between Year and Percentage of Unique Words Used. This is to say, as time increases the top 100 Billboard songs of the year tended to use less unique words per song.
+
+Although this metric can be potentially useful, let's explore Groove Armada's 1997 hit, 'At The River', to see where its fault lies-
+  
+  "If you're fond of sand dunes and salty air,
+  Quaint little villages here and there.
+
+  If you're fond of sand dunes and salty air,
+  Quaint little villages here and there.
+
+  If you're fond of sand dunes and salty air,
+  Quaint little villages here and there."
+  
+We see in this excerpt a wordcount of 45, a unique word count of 14, giving this a unique word proportion of .3111, pretty low, and we can hear how repetitive the song is. But what if we make a sort of anagram, re-arranging the order of the words.
+
+  "If you're fond of sand dunes and salty air,
+  Quaint little villages here and there.
+  
+  Here of Quaint little salty air villages,
+  and there if you're fond of sand dunes.
+  
+  There, if you're here and fond of little salty sand dunes,
+  and villages quaint."
+  
+The meaning of the song may deteriorate as the anagram is created, yet there continues to be a wordcount of 45, with a unique word count of 14. This keeps our unique word proportion at .3111, yet we can hear the repitition has significantly decreased. This makes repetition less easily tangible. It consists of repetition of word, phrase, and entire expressions.
+
+Perhaps we should define repetition using a different metric.
+
+## A Secondary Approach - Compression
+
+In Progress...
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
