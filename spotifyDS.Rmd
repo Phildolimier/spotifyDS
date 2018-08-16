@@ -1,12 +1,14 @@
 ---
 title: "Spotify"
 author: "Philippe Dolimier"
-date: "8/6/2018"
-output: rmarkdown::github_document
+date: "8/15/2018"
+output:
+      html_document:
+        keep_md: true
 ---
 
 
-```{r setup, include=FALSE}
+```{r setup, include=TRUE}
 knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 library(tidyverse)
