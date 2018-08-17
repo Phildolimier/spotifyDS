@@ -1,14 +1,15 @@
 ---
-title: "Spotify"
+title: "The Repetitiveness of Pop Music Over Time"
 author: "Philippe Dolimier"
-date: "8/15/2018"
+date: "8/6/2018"
 output:
-      html_document:
-        keep_md: true
+  html_document: default
+  pdf_document: default
+  word_document: default
 ---
 
 
-```{r setup, include=TRUE}
+```{r setup, include=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 library(tidyverse)
@@ -21,7 +22,7 @@ library(ngram)
 
 ## Part 1 - Data Curation
 
-```{r data_curation}
+```{r data_curation, warning=FALSE}
 top100_1964_2015_df <- read.csv("billboard_lyrics_1964-2015.csv", colClasses=c("numeric", "character", "character", "numeric", "character") )
 
 top100_1964_2015_df <- top100_1964_2015_df %>%
@@ -39,8 +40,7 @@ We first convert our factored Lyrics into something we can operate on - characte
 We compare the total word count to the number of unique words using tidyr::gather to turn our Lyric attribute into n attributes each containing a word, we summarize and count unique words.
 
 Our final data frame contains the final proportion of unique words over word count for a naive word repetition metric.
-
-```{r data curation, echo=FALSE}
+```{r data curation, warning=FALSE}
 top100_1964_2015_df <- top100_1964_2015_df %>%
   mutate(Lyrics = as.character(Lyrics)) %>%
   group_by_(.dots=c("Song","Artist","Year")) %>% 
@@ -66,11 +66,11 @@ top100_prop_unique_words <- top100_1964_2015_by_word_df_uniquewords %>%
   filter(wc > 4, unique_words > 4)
 
 head(top100_prop_unique_words)
-
 ```
 
 Let us graph the average proportion of unique words per song over Time.
-```{r unique_proportion_graph}
+
+```{r unique_proportion_graph, warning=FALSE}
 top100_prop_avgtop100_prop_unique_words <- top100_prop_unique_words %>%
   group_by(Year) %>%
   mutate(avg_prop = mean(prop))
@@ -81,11 +81,12 @@ ggplot() +
          x = "Year",
          y = "Percentage of Unique Words Used")
 ```
-Our initial Analysis would beleive us to beleive there is a correlation between Year and Percentage of Unique words used per top 100 Billboard Hits. Let us perform a formal test.
 
-```{r unique_proportion_graph}
+Our initial Analysis would beleive us to believe there is a correlation between Year and Percentage of Unique words used per top 100 Billboard Hits. Let us perform a formal test.
 
-Correlation Test
+# Correlation Test
+```{r correlation testing, warning=FALSE}
+
 ```
 
 We allow ourselves to see that there is a significant correlation between Year and Proportion of unique words per song. There is a very obvious inverse relationship between Year and Percentage of Unique Words Used. This is to say, as time increases the top 100 Billboard songs of the year tended to use less unique words per song.
@@ -119,5 +120,3 @@ Perhaps we should define repetition using a different metric.
 ## A Secondary Approach - Compression
 
 In Progress...
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
